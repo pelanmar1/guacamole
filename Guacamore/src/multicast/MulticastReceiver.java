@@ -5,6 +5,7 @@
  */
 package multicast;
 
+import entities.ConnectionInfo;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -20,14 +21,14 @@ import java.util.logging.Logger;
  */
 public class MulticastReceiver extends Thread {
 
-    public final String MULTICAST_GROUP = "228.5.6.7";
-    public final int MULTICAST_PORT = 6789;
+    public String multicastGroup;
+    public int multicastPort;
     private MulticastSocket socket;
     private volatile String data = "";
 
-    public MulticastReceiver() throws IOException {
-        this.socket = createSocket();
-
+    public MulticastReceiver(ConnectionInfo ci) throws IOException {
+        this.multicastGroup = ci.getUDPHost();
+        this.multicastPort = ci.getUDPPort();
     }
 
     public String getData() {
@@ -40,16 +41,20 @@ public class MulticastReceiver extends Thread {
 
     public MulticastSocket createSocket() throws UnknownHostException, IOException {
         MulticastSocket s = null;
-        InetAddress group = InetAddress.getByName(MULTICAST_GROUP); // destination multicast group 
-        s = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName(multicastGroup); // destination multicast group 
+        s = new MulticastSocket(multicastPort);
         s.joinGroup(group);
         return s;
     }
 
     public void closeConnection() throws IOException {
         MulticastSocket socket = this.getSocket();
-        InetAddress group = InetAddress.getByName(MULTICAST_GROUP);
-        socket.leaveGroup(group);
+        if (socket!=null) {
+            InetAddress group = InetAddress.getByName(multicastGroup);
+            socket.leaveGroup(group);
+            socket.close();
+        }
+
     }
 
     public void listen() throws InterruptedException {
@@ -58,19 +63,13 @@ public class MulticastReceiver extends Thread {
             s = this.createSocket();
 
             byte[] buffer = new byte[1000];
-            //while (true) {
-            
-            System.out.println("Waiting for messages");
+            System.out.println("Waiting for messages from " + multicastGroup + ":" + multicastPort);
             DatagramPacket messageIn = new DatagramPacket(buffer, buffer.length);
             s.receive(messageIn);
             System.out.println("Message from: " + messageIn.getAddress());
             String msg = new String(messageIn.getData()).trim();
-            this.data = msg + " bebe";
+            this.data = msg;
             System.out.println(data);
-            Thread.sleep(2000);
-
-
-            //}
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {
@@ -82,7 +81,6 @@ public class MulticastReceiver extends Thread {
         }
     }
 
-
     @Override
     public void run() {
         try {
@@ -93,10 +91,5 @@ public class MulticastReceiver extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(MulticastReceiver.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    
-    public static void main(String args[]) throws IOException {
-        MulticastReceiver t = new MulticastReceiver();
-        t.start();
     }
 }

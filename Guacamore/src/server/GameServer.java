@@ -21,7 +21,7 @@ import java.util.Hashtable;
 public class GameServer implements Game {
     public static int RMI_PORT = 1099;
     
-    public static String UDP_HOST = "localhost";
+    public static String UDP_HOST = "228.11.13.17";
     public static String TCP_HOST = "localhost";
     public static int UDP_PORT = 1100;
     public static int TCP_PORT = 1101;
@@ -63,7 +63,7 @@ public class GameServer implements Game {
         startRMI();
         
         // Start multicast
-        MulticastSender multicastSender = new MulticastSender();
+        MulticastSender multicastSender = new MulticastSender(UDP_HOST,UDP_PORT);
         multicastSender.start();
         
         

@@ -21,13 +21,20 @@ import entities.Position;
  */
 public class MulticastSender extends Thread {
 
-    public final String MULTICAST_GROUP = "228.5.6.7";
-    public final int MULTICAST_PORT = 6789;
+    public String multicastHost;
+    public int multicastPort;
 
     public final int DELAY = 1000;
 
     public final int NUM_MONSTERS = 3;
     private int monsterCounter = 0;
+
+    public MulticastSender(String multicastHost, int multicastPort) {
+        this.multicastHost = multicastHost;
+        this.multicastPort = multicastPort;
+    }
+    
+    
 
     public int getMonsterCounter() {
         return monsterCounter;
@@ -40,10 +47,10 @@ public class MulticastSender extends Thread {
     public void play() throws InterruptedException {
         while (true) {
             // Create random position
-            Position position = new Position();
-            position.random();
-            String posStr = position.toString();
-            System.out.println("Enviando posición: " + posStr);
+            Random rand = new Random();
+            int position = rand.nextInt(9);
+            String posStr = String.valueOf(position);
+            System.out.println("Enviando posición: " + posStr + " desde " + multicastHost + ":" + multicastPort );
             sendMessage(posStr);
             Thread.sleep(DELAY);
             incMonsterCounter();
@@ -61,14 +68,14 @@ public class MulticastSender extends Thread {
         MulticastSocket s = null;
         try {
 
-            InetAddress group = InetAddress.getByName(MULTICAST_GROUP); // destination multicast group 
-            s = new MulticastSocket(MULTICAST_PORT);
+            InetAddress group = InetAddress.getByName(multicastHost); // destination multicast group 
+            s = new MulticastSocket(multicastPort);
             s.joinGroup(group);
             //s.setTimeToLive(10);
             //System.out.println("Messages' TTL (Time-To-Live): " + s.getTimeToLive());
             String myMessage = mensaje;
             byte[] m = myMessage.getBytes();
-            DatagramPacket messageOut = new DatagramPacket(m, m.length, group, 6789);
+            DatagramPacket messageOut = new DatagramPacket(m, m.length, group, multicastPort);
             s.send(messageOut);
             s.leaveGroup(group);
         } catch (SocketException e) {
@@ -92,8 +99,4 @@ public class MulticastSender extends Thread {
         }
     }
 
-    public static void main(String args[]) {
-        MulticastSender sender = new MulticastSender();
-        sender.start();
-    }
 }

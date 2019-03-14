@@ -5,13 +5,20 @@
  */
 package client;
 
-import static client.GameClient2.startUI;
+import entities.ConnectionInfo;
+import entities.Position;
 import interfaces.Game;
 import java.awt.Color;
+import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import multicast.MulticastReceiver;
 
 /**
  *
@@ -20,38 +27,64 @@ import javax.swing.JOptionPane;
 public class GameClient extends javax.swing.JFrame {
 
     JButton buttons[];
-    final int RMI_HOST = "localhost";
+    final String RMI_HOST = "localhost";
+    final int MONSTER_DELAY = 2000;
+    MulticastReceiver mr;
 
     /**
      * Creates new form GameClient
      */
-    public GameClient() {
+    public GameClient() throws IOException, InterruptedException {
         initComponents();
         initButtons();
         String username = promptUser();
         // Connect RMI
-        startRMI(username);
+        ConnectionInfo ci = startRMI(username);
+        while (true) {
+            mr = new MulticastReceiver(ci);
+            mr.start();
+            mr.join();
+
+            int position = Integer.valueOf(mr.getData());
+            updateButtons(position);
+        }
 
     }
+    
+    public void updateButtons(int position){
+        buttons[position].setBackground(Color.red);
+        Timer timer = new Timer();
+        TimerTask action = new TimerTask(){
+            @Override
+            public void run() {
+                buttons[position].setBackground(Color.GRAY);
+            }
+            
+        };
+        timer.schedule(action, MONSTER_DELAY);
+        
+    }
+    
+    
 
-    public void startRMI(String id) {
-        String path = "file:\\C:\\Users\\PLANZAGOM\\Documents\\NetBeansProjects\\Guacamore\\src\\client\\client.policy";
+    public ConnectionInfo startRMI(String id) {
+        String path = "C:\\Users\\PLANZAGOM\\Desktop\\pedro\\guacamole\\Guacamore\\src\\client\\client.policy";
         System.setProperty("java.security.policy", path);
 
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            String name = "Juego";
+            String name = "Game";
             Registry registry = LocateRegistry.getRegistry(RMI_HOST); // server's ip address args[0]
             Game juego = (Game) registry.lookup(name);
-
-            //boolean registro = juego.registerPlayer("Pedro");
+            return juego.getConnectionInfo();
 
         } catch (Exception e) {
             System.err.println("exception");
             e.printStackTrace();
         }
+        return null;
 
     }
 
@@ -250,7 +283,14 @@ public class GameClient extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GameClient().setVisible(true);
+                try {
+                    GameClient client = new GameClient();
+                    client.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
