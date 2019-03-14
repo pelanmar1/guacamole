@@ -18,15 +18,15 @@ import java.util.logging.Logger;
  *
  * @author JGUTIERRGARC
  */
-public class MulticastReceivingPeer implements Runnable {
+public class MulticastReceiver extends Thread {
 
     public final String MULTICAST_GROUP = "228.5.6.7";
     public final int MULTICAST_PORT = 6789;
     private MulticastSocket socket;
     private volatile String data = "";
 
-    public MulticastReceivingPeer() throws IOException {
-        this.socket = crearSocket();
+    public MulticastReceiver() throws IOException {
+        this.socket = createSocket();
 
     }
 
@@ -38,7 +38,7 @@ public class MulticastReceivingPeer implements Runnable {
         return socket;
     }
 
-    public MulticastSocket crearSocket() throws UnknownHostException, IOException {
+    public MulticastSocket createSocket() throws UnknownHostException, IOException {
         MulticastSocket s = null;
         InetAddress group = InetAddress.getByName(MULTICAST_GROUP); // destination multicast group 
         s = new MulticastSocket(MULTICAST_PORT);
@@ -46,16 +46,16 @@ public class MulticastReceivingPeer implements Runnable {
         return s;
     }
 
-    public void cerrarConexion() throws IOException {
+    public void closeConnection() throws IOException {
         MulticastSocket socket = this.getSocket();
         InetAddress group = InetAddress.getByName(MULTICAST_GROUP);
         socket.leaveGroup(group);
     }
 
-    public void escuchar() throws InterruptedException {
+    public void listen() throws InterruptedException {
         MulticastSocket s = null;
         try {
-            s = this.crearSocket();
+            s = this.createSocket();
 
             byte[] buffer = new byte[1000];
             //while (true) {
@@ -82,20 +82,21 @@ public class MulticastReceivingPeer implements Runnable {
         }
     }
 
-    public static void main(String args[]) throws IOException {
-        Thread t = new Thread(new MulticastReceivingPeer());
-        t.start();
-    }
 
     @Override
     public void run() {
         try {
-            this.escuchar();
-            this.cerrarConexion();
+            this.listen();
+            this.closeConnection();
         } catch (InterruptedException ex) {
-            Logger.getLogger(MulticastReceivingPeer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MulticastReceiver.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(MulticastReceivingPeer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MulticastReceiver.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public static void main(String args[]) throws IOException {
+        MulticastReceiver t = new MulticastReceiver();
+        t.start();
     }
 }
