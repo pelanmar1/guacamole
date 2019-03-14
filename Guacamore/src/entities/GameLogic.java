@@ -5,6 +5,7 @@
  */
 package entities;
 
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -12,13 +13,13 @@ import java.util.Random;
  *
  * @author planzagom
  */
-public class GameLogic {
+public class GameLogic implements Serializable {
 
-    private boolean winner = false;
+    public boolean winner = false;
     final int NUM_MOSTER = 5;
-    final int N = 9;
-    private int correctButton=0;
-    Hashtable<String, Integer> scoreData = new Hashtable<String, Integer>();
+    private int correctButton = 0;
+    public Hashtable<String, Integer> scoreData = new Hashtable<String, Integer>();
+    
 
     public boolean exists(String username) {
         return scoreData.get(username) != null;
@@ -26,7 +27,7 @@ public class GameLogic {
 
     public int getRandomButton() {
         Random rand = new Random();
-        this.correctButton = rand.nextInt(N);
+        this.correctButton = rand.nextInt(9);
         return correctButton;
     }
 
@@ -52,6 +53,15 @@ public class GameLogic {
 
     }
 
+    public String getWinnerUsername() {
+        for (String key : scoreData.keySet()) {
+            if(scoreData.get(key)>=this.NUM_MOSTER){
+                return key;
+            }
+        }
+        return null;
+    }
+
     public boolean isWinner() {
         return winner;
     }
@@ -66,6 +76,12 @@ public class GameLogic {
 
     public void setCorrectButton(int correctButton) {
         this.correctButton = correctButton;
+    }
+    
+    public void clearScores(){
+        for (String key : scoreData.keySet()) {
+            scoreData.put(key,0);
+        }
     }
 
 }

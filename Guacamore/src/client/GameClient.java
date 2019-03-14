@@ -6,16 +6,19 @@
 package client;
 
 import entities.ConnectionInfo;
-import entities.Position;
 import interfaces.Game;
 import java.awt.Color;
+import java.awt.Image;
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import multicast.MulticastReceiver;
@@ -29,9 +32,9 @@ public class GameClient extends javax.swing.JFrame {
 
     JButton buttons[];
     final String RMI_HOST = "localhost";
-    final int MONSTER_DELAY = 5000;
+    final int MONSTER_DELAY = 750;
     MulticastReceiver mr;
-
+    //#ABD162
     ConnectionInfo ci;
     String username = "";
     int score = 0;
@@ -55,6 +58,17 @@ public class GameClient extends javax.swing.JFrame {
         ts.join();
         if (ts.getLastAnswer().equals("w")) {
             score += 1;
+        }
+        if (ts.getLastAnswer().charAt(0) == 'f') {
+            String winnerId = ts.getLastAnswer().substring(2);
+            String msg;
+            if (this.username.equals(winnerId)) {
+                msg = "¡Felicidades, ganaste!";
+            } else {
+                msg = "¡Perdiste! El ganador es " + winnerId;
+            }
+            JOptionPane.showMessageDialog(null, msg, "Fin del juego", JOptionPane.INFORMATION_MESSAGE);
+            this.score = 0;
         }
         updateLabels();
 
@@ -88,7 +102,8 @@ public class GameClient extends javax.swing.JFrame {
     }
 
     public void updateButtons(int position) {
-        buttons[position].setBackground(Color.red);
+        Color myColor = Color.decode("#ABD162");
+        buttons[position].setBackground(myColor);
         Timer timer = new Timer();
         TimerTask action = new TimerTask() {
             @Override
@@ -99,6 +114,14 @@ public class GameClient extends javax.swing.JFrame {
         };
         timer.schedule(action, MONSTER_DELAY);
 
+    }
+
+    public void createRandomId() {
+        Date dNow = new Date();
+        SimpleDateFormat ft = new SimpleDateFormat("yyMMddhhmmssMs");
+        String datetime = ft.format(dNow);
+        this.username = datetime;
+        this.updateLabels();
     }
 
     public ConnectionInfo startRMI(String id) {
@@ -112,8 +135,13 @@ public class GameClient extends javax.swing.JFrame {
             String name = "Game";
             Registry registry = LocateRegistry.getRegistry(RMI_HOST); // server's ip address args[0]
             Game juego = (Game) registry.lookup(name);
-            //boolean registerStatus = juego.registerPlayer(id);
+            boolean registerStatus = juego.registerPlayer(id);
             // usuario ya existe etc.
+            if (!registerStatus || id.equals("")) {
+                JOptionPane.showMessageDialog(this, "Ya existe el usuario ingresado. Asignando nombre aleatorio.", "Error", JOptionPane.INFORMATION_MESSAGE);
+                createRandomId();
+
+            }
 
             return juego.getConnectionInfo();
 
@@ -125,12 +153,8 @@ public class GameClient extends javax.swing.JFrame {
 
     }
 
-    public void start() {
-
-    }
-
     public String promptUser() {
-        username = JOptionPane.showInputDialog("Elige un nombre de usuario.");
+        username = JOptionPane.showInputDialog(this, "Elige un nombre de usuario.", "Registro", JOptionPane.INFORMATION_MESSAGE);
         return username;
     }
 
@@ -151,6 +175,13 @@ public class GameClient extends javax.swing.JFrame {
             //btn.setForeground(Color.GRAY);
         }
 
+        ImageIcon icon = new ImageIcon("C:\\Users\\PLANZAGOM\\Desktop\\pedro\\guacamole\\Guacamore\\src\\images\\logo.jpg");
+        Image image = icon.getImage(); // transform it 
+        Image newimg = image.getScaledInstance(250, 250, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+        ImageIcon newImageIcon = new ImageIcon(newimg);  // transform it back
+        image1.setIcon(newImageIcon);
+        this.getContentPane().setBackground( Color.white );
+        jPanel1.setBackground(Color.white);
     }
 
     /**
@@ -176,8 +207,10 @@ public class GameClient extends javax.swing.JFrame {
         labelScore = new javax.swing.JLabel();
         userValue = new javax.swing.JLabel();
         scoreValue = new javax.swing.JLabel();
+        image1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
 
         b1.setText("jButton1");
         b1.addActionListener(new java.awt.event.ActionListener() {
@@ -287,50 +320,59 @@ public class GameClient extends javax.swing.JFrame {
                     .addComponent(b7)
                     .addComponent(b8)
                     .addComponent(b9))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
-        labelUser.setText("Usuario: ");
+        labelUser.setFont(new java.awt.Font("Consolas", 1, 12)); // NOI18N
+        labelUser.setText("Usuario ");
 
-        labelScore.setText("Puntaje:");
+        labelScore.setFont(new java.awt.Font("Consolas", 1, 12)); // NOI18N
+        labelScore.setText("Puntaje");
 
+        userValue.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         userValue.setText("-");
 
+        scoreValue.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         scoreValue.setText("-");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(106, 106, 106)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(labelScore)
-                    .addComponent(labelUser))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(userValue)
-                    .addComponent(scoreValue))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(78, Short.MAX_VALUE)
+                .addContainerGap(212, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(71, 71, 71))
+                .addGap(201, 201, 201))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(33, 33, 33)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scoreValue)
+                    .addComponent(userValue)
+                    .addComponent(labelUser)
+                    .addComponent(labelScore))
+                .addGap(67, 67, 67)
+                .addComponent(image1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(46, 46, 46)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(labelUser)
-                    .addComponent(userValue))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(labelScore)
-                    .addComponent(scoreValue))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(54, 54, 54)
+                        .addComponent(labelUser)
+                        .addGap(4, 4, 4)
+                        .addComponent(userValue)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(labelScore)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(scoreValue))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(image1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -425,8 +467,6 @@ public class GameClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_b9ActionPerformed
 
-
-   
     /**
      * @param args the command line arguments
      */
@@ -480,6 +520,7 @@ public class GameClient extends javax.swing.JFrame {
     private javax.swing.JButton b7;
     private javax.swing.JButton b8;
     private javax.swing.JButton b9;
+    private javax.swing.JLabel image1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel labelScore;
     private javax.swing.JLabel labelUser;

@@ -82,7 +82,12 @@ public class TCPReceiver extends Thread  {
                 String[] params = unpackTCPMsg(data);
                 String answer = answer(params[0], Integer.parseInt(params[1]));
                 out.writeUTF(answer);
-                gameLogic.setWinner(false);
+                if(answer.contains("f")){
+                    this.gameLogic.clearScores();
+                    this.gameLogic.scoreData.clear();
+                }
+                
+
 
             } catch (EOFException e) {
                 System.out.println("EOF:" + e.getMessage());
@@ -107,6 +112,10 @@ public class TCPReceiver extends Thread  {
                     gameLogic.incScore(username);
                     gameLogic.setWinner(true);
                 }
+            }
+            String winnerUser = gameLogic.getWinnerUsername();
+            if(winnerUser!=null){
+                return "f_"+winnerUser;
             }
             return answer;
         }

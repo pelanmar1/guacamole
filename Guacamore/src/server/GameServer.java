@@ -33,17 +33,16 @@ public class GameServer implements Game {
     private MulticastSender multicastSender;
     private TCPReceiver tcpReceiver;
     GameLogic gameLogic;
-    
 
     public GameServer() throws RemoteException {
         super();
         gameLogic = new GameLogic();
     }
 
-    public void startTCPReceiver() {
+    public void startTCPReceiver() throws InterruptedException {
         tcpReceiver = new TCPReceiver(TCP_HOST, TCP_PORT, gameLogic);
         tcpReceiver.start();
-        
+
     }
 
     public void startRMI() {
@@ -76,7 +75,7 @@ public class GameServer implements Game {
         multicastSender.start();
     }
 
-    public static void main(String[] args) throws RemoteException {
+    public static void main(String[] args) throws RemoteException, InterruptedException {
         GameServer gameServer = new GameServer();
         // Start RMI
         gameServer.startRMI();
@@ -84,8 +83,6 @@ public class GameServer implements Game {
         gameServer.startMulticastSender();
         // Start TCPReceiver
         gameServer.startTCPReceiver();
-
-        
 
     }
 
@@ -97,8 +94,8 @@ public class GameServer implements Game {
 
     @Override
     public boolean registerPlayer(String username) throws RemoteException {
-        GameLogic gl = tcpReceiver.getGameLogic();
-        return gl.insert(username);
+
+        return gameLogic.insert(username);
     }
 
 }
