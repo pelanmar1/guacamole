@@ -30,6 +30,7 @@ public class GameClient extends javax.swing.JFrame {
     final String RMI_HOST = "localhost";
     final int MONSTER_DELAY = 2000;
     MulticastReceiver mr;
+    ConnectionInfo ci;
 
     /**
      * Creates new form GameClient
@@ -39,33 +40,45 @@ public class GameClient extends javax.swing.JFrame {
         initButtons();
         String username = promptUser();
         // Connect RMI
-        ConnectionInfo ci = startRMI(username);
-        while (true) {
-            mr = new MulticastReceiver(ci);
-            mr.start();
-            mr.join();
-
-            int position = Integer.valueOf(mr.getData());
-            updateButtons(position);
-        }
+        ci = startRMI(username);
 
     }
-    
-    public void updateButtons(int position){
+
+    public void listenAndUpdate() throws IOException, InterruptedException {
+        (new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        mr = new MulticastReceiver(ci);
+                        mr.start();
+                        mr.join();
+                        
+                        int position = Integer.valueOf(mr.getData());
+                        updateButtons(position);
+                    } catch (IOException ex) {
+                        Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }).start();
+
+    }
+
+    public void updateButtons(int position) {
         buttons[position].setBackground(Color.red);
         Timer timer = new Timer();
-        TimerTask action = new TimerTask(){
+        TimerTask action = new TimerTask() {
             @Override
             public void run() {
                 buttons[position].setBackground(Color.GRAY);
             }
-            
+
         };
         timer.schedule(action, MONSTER_DELAY);
-        
+
     }
-    
-    
 
     public ConnectionInfo startRMI(String id) {
         String path = "C:\\Users\\PLANZAGOM\\Desktop\\pedro\\guacamole\\Guacamore\\src\\client\\client.policy";
@@ -286,6 +299,7 @@ public class GameClient extends javax.swing.JFrame {
                 try {
                     GameClient client = new GameClient();
                     client.setVisible(true);
+                    client.listenAndUpdate();
                 } catch (IOException ex) {
                     Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {

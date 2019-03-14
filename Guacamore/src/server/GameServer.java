@@ -19,22 +19,22 @@ import interfaces.Game;
 import java.util.Hashtable;
 
 public class GameServer implements Game {
-    public static int RMI_PORT = 1099;
+    public int RMI_PORT = 1099;
     
-    public static String UDP_HOST = "228.11.13.17";
-    public static String TCP_HOST = "localhost";
-    public static int UDP_PORT = 1100;
-    public static int TCP_PORT = 1101;
+    public String UDP_HOST = "228.11.13.17";
+    public String TCP_HOST = "localhost";
+    public int UDP_PORT = 1100;
+    public int TCP_PORT = 1101;
+    private MulticastSender multicastSender;
     
     Hashtable<String, Integer> playersData = new Hashtable<String, Integer>();
     
 
     public GameServer() throws RemoteException {
         super();
-
     }
     
-    public static void startRMI(){
+    public void startRMI(){
         String path = "C:\\Users\\PLANZAGOM\\Desktop\\pedro\\guacamole\\Guacamore\\src\\server\\server.policy";
         System.setProperty("java.security.policy", path);
 
@@ -58,13 +58,18 @@ public class GameServer implements Game {
             e.printStackTrace();
         }
     }
+    public void startMulticastSender(){
+        multicastSender = new MulticastSender(UDP_HOST,UDP_PORT);
+        multicastSender.start();
+    }
 
     public static void main(String[] args) throws RemoteException {
-        startRMI();
+        GameServer gameServer = new GameServer();
+        // Start RMI
+        gameServer.startRMI();
+        // Start Multicast sender
+        gameServer.startMulticastSender();
         
-        // Start multicast
-        MulticastSender multicastSender = new MulticastSender(UDP_HOST,UDP_PORT);
-        multicastSender.start();
         
         
     }
