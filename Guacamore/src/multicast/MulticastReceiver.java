@@ -63,13 +63,13 @@ public class MulticastReceiver extends Thread {
             s = this.createSocket();
 
             byte[] buffer = new byte[1000];
-            System.out.println("Waiting for messages from " + multicastGroup + ":" + multicastPort);
+            //System.out.println("Waiting for messages from " + multicastGroup + ":" + multicastPort);
             DatagramPacket messageIn = new DatagramPacket(buffer, buffer.length);
             s.receive(messageIn);
-            System.out.println("Message from: " + messageIn.getAddress());
+           // System.out.println("Message from: " + messageIn.getAddress());
             String msg = new String(messageIn.getData()).trim();
             this.data = msg;
-            System.out.println(data);
+           // System.out.println(data);
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {

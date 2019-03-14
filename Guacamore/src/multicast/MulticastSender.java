@@ -5,6 +5,7 @@
  */
 package multicast;
 
+import entities.GameLogic;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -24,14 +25,16 @@ public class MulticastSender extends Thread {
     public String multicastHost;
     public int multicastPort;
 
-    public final int DELAY = 1000;
+    public final int DELAY = 5000;
 
     public final int NUM_MONSTERS = 3;
     private int monsterCounter = 0;
+    GameLogic gameLogic;
 
-    public MulticastSender(String multicastHost, int multicastPort) {
+    public MulticastSender(String multicastHost, int multicastPort, GameLogic gameLogic) {
         this.multicastHost = multicastHost;
         this.multicastPort = multicastPort;
+        this.gameLogic = gameLogic;
     }
     
     
@@ -47,10 +50,9 @@ public class MulticastSender extends Thread {
     public void play() throws InterruptedException {
         while (true) {
             // Create random position
-            Random rand = new Random();
-            int position = rand.nextInt(9);
+            int position = gameLogic.getRandomButton();
             String posStr = String.valueOf(position);
-            System.out.println("Enviando posición: " + posStr + " desde " + multicastHost + ":" + multicastPort );
+            //System.out.println("Enviando posición: " + posStr + " desde " + multicastHost + ":" + multicastPort );
             sendMessage(posStr);
             Thread.sleep(DELAY);
             incMonsterCounter();

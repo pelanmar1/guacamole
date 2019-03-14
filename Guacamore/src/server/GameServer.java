@@ -9,6 +9,7 @@
 package server;
 
 import entities.ConnectionInfo;
+import entities.GameLogic;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -17,24 +18,35 @@ import multicast.MulticastSender;
 import multicast.MulticastReceiver;
 import interfaces.Game;
 import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import tcp.TCPReceiver;
 
 public class GameServer implements Game {
+
     public int RMI_PORT = 1099;
-    
+
     public String UDP_HOST = "228.11.13.17";
     public String TCP_HOST = "localhost";
     public int UDP_PORT = 1100;
     public int TCP_PORT = 1101;
     private MulticastSender multicastSender;
-    
-    Hashtable<String, Integer> playersData = new Hashtable<String, Integer>();
+    private TCPReceiver tcpReceiver;
+    GameLogic gameLogic;
     
 
     public GameServer() throws RemoteException {
         super();
+        gameLogic = new GameLogic();
     }
-    
-    public void startRMI(){
+
+    public void startTCPReceiver() {
+        tcpReceiver = new TCPReceiver(TCP_HOST, TCP_PORT, gameLogic);
+        tcpReceiver.start();
+        
+    }
+
+    public void startRMI() {
         String path = "C:\\Users\\PLANZAGOM\\Desktop\\pedro\\guacamole\\Guacamore\\src\\server\\server.policy";
         System.setProperty("java.security.policy", path);
 
@@ -44,10 +56,10 @@ public class GameServer implements Game {
         try {
 
             LocateRegistry.createRegistry(RMI_PORT);
-            
+
             String name = "Game";
             GameServer engine = new GameServer();
-            
+
             Game stub = (Game) UnicastRemoteObject.exportObject(engine, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.rebind(name, stub);
@@ -58,8 +70,9 @@ public class GameServer implements Game {
             e.printStackTrace();
         }
     }
-    public void startMulticastSender(){
-        multicastSender = new MulticastSender(UDP_HOST,UDP_PORT);
+
+    public void startMulticastSender() {
+        multicastSender = new MulticastSender(UDP_HOST, UDP_PORT, gameLogic);
         multicastSender.start();
     }
 
@@ -69,28 +82,23 @@ public class GameServer implements Game {
         gameServer.startRMI();
         // Start Multicast sender
         gameServer.startMulticastSender();
-        
-        
-        
-    }
+        // Start TCPReceiver
+        gameServer.startTCPReceiver();
 
-    @Override
-    public boolean registerPlayer(String id) throws RemoteException {
-        boolean status = false;
-        if (playersData.get(id) == null && !playersData.containsKey(id)) {
-            int score = 0;
-            playersData.put(id, score);
-            status = true;
-        }
-        return status;
+        
+
     }
 
     @Override
     public ConnectionInfo getConnectionInfo() throws RemoteException {
-        ConnectionInfo ci = new ConnectionInfo(UDP_HOST,UDP_PORT,TCP_HOST,TCP_PORT);
+        ConnectionInfo ci = new ConnectionInfo(UDP_HOST, UDP_PORT, TCP_HOST, TCP_PORT);
         return ci;
     }
 
-    
+    @Override
+    public boolean registerPlayer(String username) throws RemoteException {
+        GameLogic gl = tcpReceiver.getGameLogic();
+        return gl.insert(username);
+    }
 
 }

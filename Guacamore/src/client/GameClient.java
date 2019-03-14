@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import multicast.MulticastReceiver;
+import tcp.TCPSender;
 
 /**
  *
@@ -28,9 +29,12 @@ public class GameClient extends javax.swing.JFrame {
 
     JButton buttons[];
     final String RMI_HOST = "localhost";
-    final int MONSTER_DELAY = 2000;
+    final int MONSTER_DELAY = 5000;
     MulticastReceiver mr;
+
     ConnectionInfo ci;
+    String username = "";
+    int score = 0;
 
     /**
      * Creates new form GameClient
@@ -39,8 +43,20 @@ public class GameClient extends javax.swing.JFrame {
         initComponents();
         initButtons();
         String username = promptUser();
+        updateLabels();
         // Connect RMI
         ci = startRMI(username);
+
+    }
+
+    public void sendPositionTCP(int position) throws InterruptedException {
+        TCPSender ts = new TCPSender(ci.getTCPHost(), ci.getTCPPort(), username, position);
+        ts.start();
+        ts.join();
+        if (ts.getLastAnswer().equals("w")) {
+            score += 1;
+        }
+        updateLabels();
 
     }
 
@@ -52,7 +68,7 @@ public class GameClient extends javax.swing.JFrame {
                         mr = new MulticastReceiver(ci);
                         mr.start();
                         mr.join();
-                        
+
                         int position = Integer.valueOf(mr.getData());
                         updateButtons(position);
                     } catch (IOException ex) {
@@ -64,6 +80,11 @@ public class GameClient extends javax.swing.JFrame {
             }
         }).start();
 
+    }
+
+    public void updateLabels() {
+        userValue.setText(username);
+        scoreValue.setText(String.valueOf(score));
     }
 
     public void updateButtons(int position) {
@@ -91,6 +112,9 @@ public class GameClient extends javax.swing.JFrame {
             String name = "Game";
             Registry registry = LocateRegistry.getRegistry(RMI_HOST); // server's ip address args[0]
             Game juego = (Game) registry.lookup(name);
+            //boolean registerStatus = juego.registerPlayer(id);
+            // usuario ya existe etc.
+
             return juego.getConnectionInfo();
 
         } catch (Exception e) {
@@ -106,7 +130,8 @@ public class GameClient extends javax.swing.JFrame {
     }
 
     public String promptUser() {
-        return JOptionPane.showInputDialog("Elige un nombre de usuario.");
+        username = JOptionPane.showInputDialog("Elige un nombre de usuario.");
+        return username;
     }
 
     public void initButtons() {
@@ -155,22 +180,67 @@ public class GameClient extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         b1.setText("jButton1");
+        b1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b1ActionPerformed(evt);
+            }
+        });
 
         b2.setText("jButton2");
+        b2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b2ActionPerformed(evt);
+            }
+        });
 
         b3.setText("jButton3");
+        b3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b3ActionPerformed(evt);
+            }
+        });
 
         b4.setText("jButton4");
+        b4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b4ActionPerformed(evt);
+            }
+        });
 
         b5.setText("jButton5");
+        b5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b5ActionPerformed(evt);
+            }
+        });
 
         b6.setText("jButton6");
+        b6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b6ActionPerformed(evt);
+            }
+        });
 
         b7.setText("jButton7");
+        b7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b7ActionPerformed(evt);
+            }
+        });
 
         b8.setText("jButton8");
+        b8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b8ActionPerformed(evt);
+            }
+        });
 
         b9.setText("jButton9");
+        b9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b9ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -266,6 +336,97 @@ public class GameClient extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void b1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b1ActionPerformed
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(0);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b1ActionPerformed
+
+    private void b2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b2ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(1);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b2ActionPerformed
+
+    private void b3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b3ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(2);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b3ActionPerformed
+
+    private void b4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b4ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(3);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b4ActionPerformed
+
+    private void b5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b5ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(4);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b5ActionPerformed
+
+    private void b6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b6ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(5);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b6ActionPerformed
+
+    private void b7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b7ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(6);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b7ActionPerformed
+
+    private void b8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b8ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(7);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b8ActionPerformed
+
+    private void b9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b9ActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            sendPositionTCP(8);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_b9ActionPerformed
+
+
+   
     /**
      * @param args the command line arguments
      */
@@ -298,8 +459,8 @@ public class GameClient extends javax.swing.JFrame {
             public void run() {
                 try {
                     GameClient client = new GameClient();
-                    client.setVisible(true);
                     client.listenAndUpdate();
+                    client.setVisible(true);
                 } catch (IOException ex) {
                     Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {
