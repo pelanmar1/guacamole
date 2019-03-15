@@ -34,10 +34,6 @@ public class MulticastSender extends Thread {
         this.multicastPort = multicastPort;
         this.gameLogic = gameLogic;
     }
-    
-    
-
-
 
     public void play() throws InterruptedException {
         while (true) {
@@ -45,14 +41,13 @@ public class MulticastSender extends Thread {
             int position = gameLogic.getRandomButton();
             String posStr = String.valueOf(position);
             //System.out.println("Enviando posición: " + posStr + " desde " + multicastHost + ":" + multicastPort );
+
             sendMessage(posStr);
             Thread.sleep(DELAY);
             gameLogic.setWinner(false);
 
         }
     }
-
-
 
     public void sendMessage(String mensaje) {
         MulticastSocket s = null;
@@ -63,7 +58,13 @@ public class MulticastSender extends Thread {
             s.joinGroup(group);
             //s.setTimeToLive(10);
             //System.out.println("Messages' TTL (Time-To-Live): " + s.getTimeToLive());
-            String myMessage = mensaje + "_" + gameLogic.scoreData.toString();
+            String winner = gameLogic.getWinnerUsername();
+            if (winner != null) {
+                this.gameLogic.clearScores();
+                this.gameLogic.scoreData.clear();
+                mensaje += "_" + winner;
+            }
+            String myMessage = mensaje;// + "_" + gameLogic.scoreData.toString();
             byte[] m = myMessage.getBytes();
             DatagramPacket messageOut = new DatagramPacket(m, m.length, group, multicastPort);
             s.send(messageOut);

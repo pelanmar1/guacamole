@@ -17,7 +17,7 @@ import entities.GameLogic;
  *
  * @author planzagom
  */
-public class TCPReceiver extends Thread  {
+public class TCPReceiver extends Thread {
 
     String TCPHost;
     int TCPPort;
@@ -47,8 +47,9 @@ public class TCPReceiver extends Thread  {
             System.out.println("Listen :" + e.getMessage());
         }
     }
+
     @Override
-    public void run(){
+    public void run() {
         listen();
     }
 
@@ -78,16 +79,16 @@ public class TCPReceiver extends Thread  {
         public void run() {
             try {			                 // an echo server
                 String data = in.readUTF();
-                System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress() +" : "+ data);
+                System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress() + " : " + data);
                 String[] params = unpackTCPMsg(data);
                 String answer = answer(params[0], Integer.parseInt(params[1]));
                 out.writeUTF(answer);
-                if(answer.contains("f")){
+                /*
+                if (answer.contains("f")) {
                     this.gameLogic.clearScores();
                     this.gameLogic.scoreData.clear();
                 }
-                
-
+                */
 
             } catch (EOFException e) {
                 System.out.println("EOF:" + e.getMessage());
@@ -103,7 +104,7 @@ public class TCPReceiver extends Thread  {
         }
 
         public String answer(String username, int hitPosition) {
-            
+
             String answer = "l";
             if (gameLogic.isWinner()) {
                 answer = "l";
@@ -114,13 +115,15 @@ public class TCPReceiver extends Thread  {
                     gameLogic.setWinner(true);
                 }
             }
-            int newScore = gameLogic.scoreData.get(username)==null?0:gameLogic.scoreData.get(username);
-            
+            int newScore = gameLogic.scoreData.get(username) == null ? 0 : gameLogic.scoreData.get(username);
+
             answer += "_" + newScore;
+            /*
             String winnerUser = gameLogic.getWinnerUsername();
             if(winnerUser!=null){
                 return "f_"+winnerUser;
             }
+             */
             return answer;
         }
 

@@ -116,15 +116,38 @@ public class Stressinator extends Thread {
         int numClients = 50;
         int numMsgs = 10;
 
-        int s = 15;
-        //for (int s = 1; s <= numSamples; s++) {
-        for (int i = 0; i < numClients * s; i++) {
-            String username = "user_" + i;
-            Stressinator stress = new Stressinator(username, numMsgs, numClients * s);
-            stress.start();
-
+        for (int s = 1; s <= numSamples; s++) {
+            Execute ex = new Execute(s,numClients,numMsgs);
+            ex.start();
+            ex.join();
         }
-        //}
+    }
+
+    public static class Execute extends Thread {
+
+        int s;
+        int numClients;
+        int numMsgs;
+
+        public Execute(int s, int numClients, int numMsgs) {
+            this.s = s;
+            this.numClients = numClients;
+            this.numMsgs = numMsgs;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < numClients * s; i++) {
+                try {
+                    String username = "user_" + i;
+                    Stressinator stress = new Stressinator(username, numMsgs, numClients * s);
+                    stress.start();
+                } catch (IOException ex) {
+                    Logger.getLogger(Stressinator.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        }
 
     }
 

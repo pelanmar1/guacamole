@@ -62,31 +62,30 @@ public class GameClient extends javax.swing.JFrame {
         ts.start();
         ts.join();
         String answer = ts.getLastAnswer();
-        System.out.println(answer + "PIZZA");
-        if (answer.contains("w")||answer.contains("l")) {
+        System.out.println(answer);
+        if (answer.contains("w") || answer.contains("l")) {
             score = Integer.valueOf(answer.substring(2));
         }
-        if (answer.contains("f")) {
-            String winnerId = answer.substring(2);
-            String msg;
-            if (this.username.equals(winnerId)) {
-                msg = "¡Felicidades, ganaste!";
-            } else {
-                msg = "¡Perdiste! El ganador es " + winnerId;
-            }
-            score = 0;
-            updateLabels();
-            JOptionPane.showMessageDialog(null, msg, "Fin del juego", JOptionPane.INFORMATION_MESSAGE);
-            
-        }
+       
         updateLabels();
 
     }
-    
+
+    public void gameOver(String winnerId) {
+        String msg;
+        if (this.username.equals(winnerId)) {
+            msg = "¡Felicidades, ganaste "+winnerId+"!";
+        } else {
+            msg = "¡Perdiste! El ganador es " + winnerId;
+        }
+        score = 0;
+        updateLabels();
+        JOptionPane.showMessageDialog(this, msg, "Fin del juego", JOptionPane.INFORMATION_MESSAGE);
+    }
+
 //    public HashMap<String,Integer> strToHash(String inputString){
 //        Map<String, String> properties = Splitter.on(",").withKeyValueSeparator(":").split(inputString);
 //    }
-
     public void listenAndUpdate() throws IOException, InterruptedException {
         (new Thread() {
             public void run() {
@@ -97,6 +96,10 @@ public class GameClient extends javax.swing.JFrame {
                         mr.join();
                         String msj = mr.getData();
                         String[] msjArre = msj.split("_");
+                        if (msjArre.length > 1) {
+                            String winnerId = msjArre[1];
+                            gameOver(winnerId);
+                        }
                         int position = Integer.valueOf(msjArre[0]);
                         updateButtons(position);
                     } catch (IOException | InterruptedException ex) {
@@ -191,7 +194,7 @@ public class GameClient extends javax.swing.JFrame {
         Image newimg = image.getScaledInstance(250, 250, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
         ImageIcon newImageIcon = new ImageIcon(newimg);  // transform it back
         image1.setIcon(newImageIcon);
-        this.getContentPane().setBackground( Color.white );
+        this.getContentPane().setBackground(Color.white);
         jPanel1.setBackground(Color.white);
     }
 
