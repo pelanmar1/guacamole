@@ -27,7 +27,7 @@ public class GameServer implements Game {
     public int RMI_PORT = 1099;
 
     public String UDP_HOST = "228.11.13.17";
-    public String TCP_HOST = "localhost";
+    public String TCP_HOST = "148.205.133.220";
     public int UDP_PORT = 1100;
     public int TCP_PORT = 1101;
     private MulticastSender multicastSender;
@@ -99,7 +99,7 @@ public class GameServer implements Game {
     @Override
     public boolean registerPlayer(String username) throws RemoteException {
 
-        return gameLogic.insert(username);
+        return true;//gameLogic.insert(username);
     }
 
 }

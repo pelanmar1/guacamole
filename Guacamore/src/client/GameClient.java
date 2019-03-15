@@ -37,7 +37,7 @@ public class GameClient extends javax.swing.JFrame {
 
     JButton buttons[];
     final String RMI_HOST = "localhost";
-    final int MONSTER_DELAY = 750;
+    final int MONSTER_DELAY = 1000;
     MulticastReceiver mr;
     //#ABD162
     ConnectionInfo ci;

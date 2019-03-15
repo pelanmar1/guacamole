@@ -25,7 +25,7 @@ public class MulticastSender extends Thread {
     public String multicastHost;
     public int multicastPort;
 
-    public final int DELAY = 1;
+    public final int DELAY = 1000;
 
     GameLogic gameLogic;
 
