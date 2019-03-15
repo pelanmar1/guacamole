@@ -22,7 +22,7 @@ public class TCPSender extends Thread {
     String TCPHost;
     int TCPPort;
     String username;
-    volatile String lastAnswer = "";
+    volatile String lastAnswer = "l";
     int position;
 
     public TCPSender(String TCPHost, int TCPPort, String username, int position) {

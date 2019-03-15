@@ -25,7 +25,7 @@ public class MulticastSender extends Thread {
     public String multicastHost;
     public int multicastPort;
 
-    public final int DELAY = 750;
+    public final int DELAY = 1;
 
     GameLogic gameLogic;
 
@@ -63,7 +63,7 @@ public class MulticastSender extends Thread {
             s.joinGroup(group);
             //s.setTimeToLive(10);
             //System.out.println("Messages' TTL (Time-To-Live): " + s.getTimeToLive());
-            String myMessage = mensaje;
+            String myMessage = mensaje + "_" + gameLogic.scoreData.toString();
             byte[] m = myMessage.getBytes();
             DatagramPacket messageOut = new DatagramPacket(m, m.length, group, multicastPort);
             s.send(messageOut);

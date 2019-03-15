@@ -74,15 +74,19 @@ public class GameServer implements Game {
         multicastSender = new MulticastSender(UDP_HOST, UDP_PORT, gameLogic);
         multicastSender.start();
     }
+    
+    public void play() throws InterruptedException{
+        // Start RMI
+        startRMI();
+        // Start Multicast sender
+        startMulticastSender();
+        // Start TCPReceiver
+        startTCPReceiver();
+    }
 
     public static void main(String[] args) throws RemoteException, InterruptedException {
         GameServer gameServer = new GameServer();
-        // Start RMI
-        gameServer.startRMI();
-        // Start Multicast sender
-        gameServer.startMulticastSender();
-        // Start TCPReceiver
-        gameServer.startTCPReceiver();
+        gameServer.play();
 
     }
 

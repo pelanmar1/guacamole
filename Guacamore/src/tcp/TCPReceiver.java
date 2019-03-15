@@ -103,6 +103,7 @@ public class TCPReceiver extends Thread  {
         }
 
         public String answer(String username, int hitPosition) {
+            
             String answer = "l";
             if (gameLogic.isWinner()) {
                 answer = "l";
@@ -113,6 +114,9 @@ public class TCPReceiver extends Thread  {
                     gameLogic.setWinner(true);
                 }
             }
+            int newScore = gameLogic.scoreData.get(username)==null?0:gameLogic.scoreData.get(username);
+            
+            answer += "_" + newScore;
             String winnerUser = gameLogic.getWinnerUsername();
             if(winnerUser!=null){
                 return "f_"+winnerUser;
